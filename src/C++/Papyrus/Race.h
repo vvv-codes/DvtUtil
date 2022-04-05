@@ -2,13 +2,12 @@
 
 #pragma warning(disable : 4100)
 
-namespace PapyrusRace
+namespace Papyrus::Race
 {
 	using VM = RE::BSScript::IVirtualMachine;
 	using StackID = RE::VMStackID;
 	using Severity = RE::BSScript::ErrorLogger::Severity;
 
-	auto GetRaceSkillBonus(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESRace* a_race, RE::BSFixedString a_actorValue) -> std::int32_t;
 	auto GetRaceSkills(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESRace* a_race) -> std::vector<RE::BSFixedString>;
 
 	auto GetRaceMaleHeight(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESRace* a_race) -> float;

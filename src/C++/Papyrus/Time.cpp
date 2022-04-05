@@ -1,8 +1,8 @@
 #pragma once
 
-#include "PapyrusTime.h"
+#include "Time.h"
 
-namespace PapyrusTime
+namespace Papyrus::Time
 {
 	auto GetCurrentHourOfDay(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*) -> float
 	{
@@ -27,7 +27,7 @@ namespace PapyrusTime
 			return false;
 		}
 
-		a_vm->RegisterFunction("GetCurrentHourOfDay", PROJECT_NAME, GetCurrentHourOfDay);
+		a_vm->RegisterFunction("GetCurrentHourOfDay", Plugin::NAME, GetCurrentHourOfDay);
 
 		return true;
 	}

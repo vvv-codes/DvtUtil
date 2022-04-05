@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PapyrusString.h"
+#include "String.h"
 
 template <typename T>
 static auto intToHex(T i) -> std::string
@@ -104,7 +104,7 @@ static auto splitAsInt(const RE::BSFixedString& src, const char delimiter) -> st
 	return vec;
 }
 
-namespace PapyrusString
+namespace Papyrus::String
 {
 	auto ContainsText(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_text, RE::BSFixedString a_subtext) -> bool
 	{
@@ -289,15 +289,15 @@ namespace PapyrusString
 			return false;
 		}
 
-		a_vm->RegisterFunction("ContainsText", PROJECT_NAME, ContainsText);
-		a_vm->RegisterFunction("FormatFloat", PROJECT_NAME, FormatFloat);
-		a_vm->RegisterFunction("FormatInt", PROJECT_NAME, FormatInt);
-		a_vm->RegisterFunction("FormatString", PROJECT_NAME, FormatString);
-		a_vm->RegisterFunction("IntToHex", PROJECT_NAME, IntToHex);
-		a_vm->RegisterFunction("SplitString", PROJECT_NAME, SplitString);
-		a_vm->RegisterFunction("StrToFloatArray", PROJECT_NAME, StrToFloatArray);
-		a_vm->RegisterFunction("StrToIntArray", PROJECT_NAME, StrToIntArray);
-		a_vm->RegisterFunction("WrapString", PROJECT_NAME, WrapString);
+		a_vm->RegisterFunction("ContainsText", Plugin::NAME, ContainsText);
+		a_vm->RegisterFunction("FormatFloat", Plugin::NAME, FormatFloat);
+		a_vm->RegisterFunction("FormatInt", Plugin::NAME, FormatInt);
+		a_vm->RegisterFunction("FormatString", Plugin::NAME, FormatString);
+		a_vm->RegisterFunction("IntToHex", Plugin::NAME, IntToHex);
+		a_vm->RegisterFunction("SplitString", Plugin::NAME, SplitString);
+		a_vm->RegisterFunction("StrToFloatArray", Plugin::NAME, StrToFloatArray);
+		a_vm->RegisterFunction("StrToIntArray", Plugin::NAME, StrToIntArray);
+		a_vm->RegisterFunction("WrapString", Plugin::NAME, WrapString);
 
 		return true;
 	}

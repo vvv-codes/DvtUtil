@@ -2,7 +2,7 @@
 
 #pragma warning(disable : 4100)
 
-namespace PapyrusSpell
+namespace Papyrus::Spell
 {
 	using VM = RE::BSScript::IVirtualMachine;
 	using StackID = RE::VMStackID;

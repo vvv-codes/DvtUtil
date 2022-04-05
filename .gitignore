@@ -1,6 +1,8 @@
 .idea/
+/build
 /build-debug*
 /build-release*
+/.vscode
 workspace.xml
 
 ## Ignore Visual Studio temporary files, build results, and

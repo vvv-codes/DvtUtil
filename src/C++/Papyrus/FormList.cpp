@@ -1,8 +1,8 @@
 #pragma once
 
-#include "PapyrusFormList.h"
+#include "FormList.h"
 
-namespace PapyrusFormList
+namespace Papyrus::FormList
 {
 	auto SearchListForForms(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSListForm* a_list, std::vector<RE::TESForm*> a_forms) -> std::vector<bool>
 	{
@@ -65,8 +65,8 @@ namespace PapyrusFormList
 			return false;
 		}
 
-		a_vm->RegisterFunction("SearchListForForms", PROJECT_NAME, SearchListForForms);
-		a_vm->RegisterFunction("SearchListsForForm", PROJECT_NAME, SearchListsForForm);
+		a_vm->RegisterFunction("SearchListForForms", Plugin::NAME, SearchListForForms);
+		a_vm->RegisterFunction("SearchListsForForm", Plugin::NAME, SearchListsForForm);
 
 		return true;
 	}

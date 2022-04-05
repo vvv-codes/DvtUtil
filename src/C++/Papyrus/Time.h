@@ -1,8 +1,6 @@
 #pragma once
 
-#pragma warning(disable : 4100)
-
-namespace PapyrusTime
+namespace Papyrus::Time
 {
 	using VM = RE::BSScript::IVirtualMachine;
 	using StackID = RE::VMStackID;

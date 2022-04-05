@@ -1,10 +1,8 @@
 #pragma once
 
-#include "ActorValueHelper.h"
+#include "ObjectREFR.h"
 
-#include "PapyrusObjectREFR.h"
-
-namespace PapyrusObjectREFR
+namespace Papyrus::ObjectREFR
 {
 	auto FindNearbyActors(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_origin, float a_radius) -> std::vector<RE::Actor*>
 	{
@@ -180,22 +178,6 @@ namespace PapyrusObjectREFR
 		return vec;
 	}
 
-	auto GetPermanentActorValue(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BSFixedString a_actorValue) -> float
-	{
-		if (!a_ref) {
-			a_vm->TraceStack("akActor cannot be None", a_stackID, Severity::kInfo);
-			return -1.0;
-		}
-
-		if (const auto actor = a_ref->As<RE::Actor>(); actor) {
-			const auto actorValueId = RE::GetActorValueIdFromName(a_actorValue.c_str());
-			const auto actorValue = static_cast<RE::ActorValue>(actorValueId);
-			return actor->GetPermanentActorValue(actorValue);
-		}
-
-		return -1.0;
-	}
-
 	auto RegisterFuncs(VM* a_vm) -> bool
 	{
 		if (!a_vm) {
@@ -203,13 +185,12 @@ namespace PapyrusObjectREFR
 			return false;
 		}
 
-		a_vm->RegisterFunction("FindNearbyActors", PROJECT_NAME, FindNearbyActors);
-		a_vm->RegisterFunction("FindNearbyBooks", PROJECT_NAME, FindNearbyBooks);
-		a_vm->RegisterFunction("FindNearbyCommandedActors", PROJECT_NAME, FindNearbyCommandedActors);
-		a_vm->RegisterFunction("FindNearbyFollowers", PROJECT_NAME, FindNearbyFollowers);
-		a_vm->RegisterFunction("FindNearbySummons", PROJECT_NAME, FindNearbySummons);
-		a_vm->RegisterFunction("FindNearbyTeammates", PROJECT_NAME, FindNearbyTeammates);
-		a_vm->RegisterFunction("GetPermanentActorValue", PROJECT_NAME, GetPermanentActorValue);
+		a_vm->RegisterFunction("FindNearbyActors", Plugin::NAME, FindNearbyActors);
+		a_vm->RegisterFunction("FindNearbyBooks", Plugin::NAME, FindNearbyBooks);
+		a_vm->RegisterFunction("FindNearbyCommandedActors", Plugin::NAME, FindNearbyCommandedActors);
+		a_vm->RegisterFunction("FindNearbyFollowers", Plugin::NAME, FindNearbyFollowers);
+		a_vm->RegisterFunction("FindNearbySummons", Plugin::NAME, FindNearbySummons);
+		a_vm->RegisterFunction("FindNearbyTeammates", Plugin::NAME, FindNearbyTeammates);
 
 		return true;
 	}

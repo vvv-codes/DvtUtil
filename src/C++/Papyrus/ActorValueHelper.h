@@ -4,6 +4,6 @@
 
 namespace ActorValueHelper
 {
-	auto StringToActorValue(const RE::BSFixedString& a_string) -> RE::ActorValue;
+	auto StringToActorValue(const RE::BSFixedString a_string) -> RE::ActorValue;
 	auto ActorValueToString(RE::ActorValue a_actorValue) -> RE::BSFixedString;
 }

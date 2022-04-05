@@ -1,219 +1,195 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.22)
 
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "")
-set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
-set(VCPKG_TARGET_TRIPLET "x64-windows-static" CACHE STRING "")
+# option(COPY_OUTPUT "copy the output of build operations to the game directory" OFF)
+option(BUILD_SKYRIMAE, "Build for Skyrim AE" OFF)
 
-# ---- Project ----
+macro(set_from_environment VARIABLE)
+	if(NOT DEFINED ${VARIABLE} AND DEFINED ENV{${VARIABLE}})
+		set(${VARIABLE} $ENV{${VARIABLE}})
+	endif()
+endmacro()
+
+macro(find_commonlib_path)
+        find_path(CommonLibPath
+        include/REL/Relocation.h
+        PATHS external/CommonLibSSE)
+        if(${CommonLibPath} STREQUAL "CommonLibPath-NOTFOUND")
+               set_from_environment(CommonLibSSEPath) 
+               set(CommonLibPath CommonLibSSEPath)
+        endif()
+endmacro()
+
+# set_from_environment(Skyrim64Path)
+set_from_environment(VCPKG_ROOT)
+find_commonlib_path()
+
+if(DEFINED VCPKG_ROOT)
+        set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+        set(VCPKG_TARGET_TRIPLET "x64-windows-static" CACHE STRING "")
+else()
+        message(WARNING "VCPKG_ROOT is not set. Continuing without vcpkg")
+endif()
 
 project(
-        LibFire
-        VERSION 1.0.0
-        LANGUAGES CXX
+	DvtUtil
+	VERSION 1.0.0
+	LANGUAGES CXX
+)
+
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+configure_file(
+	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/Plugin.h.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/include/Plugin.h"
+	@ONLY
 )
 
 configure_file(
-        ${CMAKE_CURRENT_SOURCE_DIR}/version.rc.in
-        ${CMAKE_CURRENT_BINARY_DIR}/version.rc
-        @ONLY
+	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.rc.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/version.rc"
+	@ONLY
 )
 
-# ---- Include guards ----
-
-if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
-    message(
-            FATAL_ERROR
-            "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there."
-    )
+if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
+	message(FATAL_ERROR "in-source builds are not allowed")
 endif()
+
+if(BUILD_SKYRIMAE)
+        add_compile_definitions(SKYRIM_SUPPORT_AE)
+endif()
+
+# The following is commented temporarily - we don't use Skyrim64Path currently,
+# but in the future if we support copying builds to the output dir automatically
+# we will need it.
+
+# if(NOT DEFINED Skyrim64Path)
+# 	message(FATAL_ERROR "Skyrim64Path is not set")
+# endif()
 
 # ---- Dependencies ----
-
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
-
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_STATIC_RUNTIME ON CACHE BOOL "")
-set(Boost_USE_DEBUG_RUNTIME ON)
-
-if (MSVC)
-    add_compile_definitions(
-            _UNICODE
-    )
-
-    set(COMPILE_OPTIONS_DEBUG
-            /Zc:inline-	# Keep unreferenced COMDAT
-            /JMC	# Just My Code debugging
-            )
-
-    set(COMPILE_OPTIONS_RELEASE
-            /Zc:inline	# Remove unreferenced COMDAT
-            /JMC-	# Disable Just My Code debugging
-            )
-
-    add_compile_options(
-            /Gy	# Enable Function-Level Linking
-            /MP	# Build with Multiple Processes
-            /Oi	# Generate Intrinsic Functions
-            /sdl	# Enable Additional Security Checks
-            /Zi	# Debug Information Format
-
-            /permissive-	# Standards conformance
-
-            /Zc:alignedNew	# C++17 over-aligned allocation
-            /Zc:auto	# Deduce Variable Type
-            /Zc:char8_t
-            /Zc:__cplusplus	# Enable updated __cplusplus macro
-            /Zc:externC
-            /Zc:externConstexpr	# Enable extern constexpr variables
-            /Zc:forScope	# Force Conformance in for Loop Scope
-            /Zc:hiddenFriend
-            /Zc:implicitNoexcept	# Implicit Exception Specifiers
-            /Zc:lambda
-            /Zc:noexceptTypes	# C++17 noexcept rules
-            /Zc:preprocessor	# Enable preprocessor conformance mode
-            /Zc:referenceBinding	# Enforce reference binding rules
-            /Zc:rvalueCast	# Enforce type conversion rules
-            /Zc:sizedDealloc	# Enable Global Sized Deallocation Functions
-            /Zc:strictStrings	# Disable string literal type conversion
-            /Zc:ternary	# Enforce conditional operator rules
-            /Zc:threadSafeInit	# Thread-safe Local Static Initialization
-            /Zc:tlsGuards
-            /Zc:trigraphs	# Trigraphs Substitution
-            /Zc:wchar_t	# wchar_t Is Native Type
-
-            /experimental:external
-            /external:anglebrackets
-            /external:W0
-
-            /W4	# Warning level (all warnings)
-#            /WX	# Warning level (warnings are errors)
-
-            "$<$<CONFIG:Debug>:${COMPILE_OPTIONS_DEBUG}>"
-            "$<$<CONFIG:Release>:${COMPILE_OPTIONS_RELEASE}>"
-    )
-
-    set(LINK_OPTIONS_DEBUG
-            /INCREMENTAL	# Link Incrementally
-            /OPT:NOREF	# Optimizations (keep functions/data never referenced)
-            /OPT:NOICF	# Optimizations (prevent identical COMDAT folding)
-            )
-
-    set(LINK_OPTIONS_RELEASE
-            /INCREMENTAL:NO	# Link Incrementally
-            /OPT:REF	# Optimizations (eliminate functions/data never referenced)
-            /OPT:ICF	# Optimizations (perform identical COMDAT folding)
-            )
-
-    add_link_options(
-            "$<$<CONFIG:Debug>:${LINK_OPTIONS_DEBUG}>"
-            "$<$<CONFIG:Release>:${LINK_OPTIONS_RELEASE}>"
-    )
+if (DEFINED CommonLibPath AND NOT ${CommonLibPath} STREQUAL "" AND IS_DIRECTORY ${CommonLibPath})
+	add_subdirectory(${CommonLibPath} ${CommonLibName})
+else ()
+	message(
+		FATAL_ERROR
+		"Variable CommonLibSSEPath is not set."
+	)
 endif()
-
-if(NOT TARGET CommonLibSSE)
-    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../CommonLibSSE" CommonLibSSE)
-endif()
-
-find_package(spdlog REQUIRED)
-find_package(fmt REQUIRED)
 
 # ---- Add source files ----
 
-set(headers
-        src/PCH.h
-        src/Constants.h
-        src/Papyrus/Registration.h
-        src/Papyrus/ActorValueHelper.h
-        src/Papyrus/PapyrusActor.h
-        src/Papyrus/PapyrusExperiments.h
-        src/Papyrus/PapyrusFaction.h
-        src/Papyrus/PapyrusFormList.h
-        src/Papyrus/PapyrusObjectREFR.h
-        src/Papyrus/PapyrusRace.h
-        src/Papyrus/PapyrusSpell.h
-        src/Papyrus/PapyrusString.h
-        src/Papyrus/PapyrusTime.h
-)
+include(cmake/headerlist.cmake)
+include(cmake/sourcelist.cmake)
 
-set(sources
-        src/main.cpp
-        src/PCH.cpp
-        src/Papyrus/Registration.cpp
-        src/Papyrus/ActorValueHelper.cpp
-        src/Papyrus/PapyrusActor.cpp
-        src/Papyrus/PapyrusExperiments.cpp
-        src/Papyrus/PapyrusFaction.cpp
-        src/Papyrus/PapyrusFormList.cpp
-        src/Papyrus/PapyrusObjectREFR.cpp
-        src/Papyrus/PapyrusRace.cpp
-        src/Papyrus/PapyrusSpell.cpp
-        src/Papyrus/PapyrusString.cpp
-        src/Papyrus/PapyrusTime.cpp
+source_group(
+	TREE
+		${CMAKE_CURRENT_SOURCE_DIR}
+	FILES
+		${headers}
+		${sources}
 )
 
 source_group(
-        TREE
-            ${CMAKE_CURRENT_SOURCE_DIR}
-        FILES
-            ${headers}
-            ${sources}
+	TREE
+		${CMAKE_CURRENT_BINARY_DIR}
+	FILES
+		${CMAKE_CURRENT_BINARY_DIR}/include/Plugin.h
 )
 
 # ---- Create DLL ----
 
 add_library(
-        ${PROJECT_NAME}
-        SHARED
-        ${headers}
-        ${sources}
-        ${CMAKE_CURRENT_BINARY_DIR}/version.rc
-        .clang-format
-        )
+	${PROJECT_NAME}
+	SHARED
+	${headers}
+	${sources}
+	${CMAKE_CURRENT_BINARY_DIR}/include/Plugin.h
+	${CMAKE_CURRENT_BINARY_DIR}/version.rc
+	.clang-format
+)
 
 target_compile_features(
-        ${PROJECT_NAME}
-        PUBLIC
-            cxx_std_20
-        )
-
-target_compile_options(
-        ${PROJECT_NAME}
-        PRIVATE
-            "$<$<BOOL:${MSVC}>:/TP>"
-        )
+	${PROJECT_NAME}
+	PRIVATE
+		cxx_std_23
+)
 
 target_include_directories(
-        ${PROJECT_NAME}
-        PRIVATE
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-            $<INSTALL_INTERFACE:src>
-        )
+	${PROJECT_NAME}
+	PRIVATE
+		${CMAKE_CURRENT_BINARY_DIR}/include
+		${CMAKE_CURRENT_SOURCE_DIR}/src/C++
+		${CommonLibPath}/x64/Release
+)
 
 target_link_libraries(
-        ${PROJECT_NAME}
-        PUBLIC
-            CommonLibSSE::CommonLibSSE
-            spdlog::spdlog
-            fmt::fmt
-        )
+	${PROJECT_NAME}
+	PRIVATE
+		CommonLibSSE::CommonLibSSE
+)
 
-target_link_options(
-        ${PROJECT_NAME}
-        PUBLIC
-            ${LINK_OPTIONS_${CONFIG}}
-        )
+if (MSVC)
+	target_compile_options(
+		${PROJECT_NAME}
+		PRIVATE
+			/sdl	# Enable Additional Security Checks
+			/utf-8	# Set Source and Executable character sets to UTF-8
+			/Zi	# Debug Information Format
+
+			/permissive-	# Standards conformance
+
+			/Zc:alignedNew	# C++17 over-aligned allocation
+			/Zc:auto	# Deduce Variable Type
+			/Zc:char8_t
+			/Zc:__cplusplus	# Enable updated __cplusplus macro
+			/Zc:externC
+			/Zc:externConstexpr	# Enable extern constexpr variables
+			/Zc:forScope	# Force Conformance in for Loop Scope
+			/Zc:hiddenFriend
+			/Zc:implicitNoexcept	# Implicit Exception Specifiers
+			/Zc:lambda
+			/Zc:noexceptTypes	# C++17 noexcept rules
+			/Zc:preprocessor	# Enable preprocessor conformance mode
+			/Zc:referenceBinding	# Enforce reference binding rules
+			/Zc:rvalueCast	# Enforce type conversion rules
+			/Zc:sizedDealloc	# Enable Global Sized Deallocation Functions
+			/Zc:strictStrings	# Disable string literal type conversion
+			/Zc:ternary	# Enforce conditional operator rules
+			/Zc:threadSafeInit	# Thread-safe Local Static Initialization
+			/Zc:tlsGuards
+			/Zc:trigraphs	# Trigraphs Substitution
+			/Zc:wchar_t	# wchar_t Is Native Type
+
+			/external:anglebrackets
+			/external:W0
+
+			/W4	# Warning level
+			/WX # Warning level (warnings are errors)
+
+			"$<$<CONFIG:DEBUG>:>"
+			"$<$<CONFIG:RELEASE>:/Zc:inline;/JMC-;/Ob3>"
+	)
+
+	target_link_options(
+		${PROJECT_NAME}
+		PRIVATE
+			/WX	# Treat Linker Warnings as Errors
+
+			"$<$<CONFIG:DEBUG>:/INCREMENTAL;/OPT:NOREF;/OPT:NOICF>"
+			"$<$<CONFIG:RELEASE>:/INCREMENTAL:NO;/OPT:REF;/OPT:ICF;/DEBUG:FULL>"
+	)
+
+	# fix a warning with /Ob2 being overridden with /Ob3
+	string(REPLACE "/Ob2" "/Ob3" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+
+endif ()
 
 target_precompile_headers(
-        ${PROJECT_NAME}
-        PRIVATE
-            src/PCH.h
-        )
-
-add_custom_command(
-        TARGET ${PROJECT_NAME}
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> "F:/ModOrganizer/Games/SkyrimSE/mods/LibFire/SKSE/Plugins/"
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/Scripts/Source/LibFire.psc "F:/ModOrganizer/Games/SkyrimSE/mods/LibFire/Scripts/Source/LibFire.psc"
+	${PROJECT_NAME}
+	PRIVATE
+		src/C++/PCH.h
 )
+
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+
+include(cmake/packaging.cmake)

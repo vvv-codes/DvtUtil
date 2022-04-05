@@ -1,8 +1,8 @@
 #pragma once
 
-#include "PapyrusFaction.h"
+#include "Faction.h"
 
-namespace PapyrusFaction
+namespace Papyrus::Faction
 {
 	auto SetAllies(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESFaction* a_faction, RE::BGSListForm* a_factions, const bool a_selfIsFriendToOther, const bool a_otherIsFriendToSelf) -> void
 	{
@@ -83,8 +83,8 @@ namespace PapyrusFaction
 			return false;
 		}
 
-		a_vm->RegisterFunction("SetAllies", PROJECT_NAME, SetAllies);
-		a_vm->RegisterFunction("SetEnemies", PROJECT_NAME, SetEnemies);
+		a_vm->RegisterFunction("SetAllies", Plugin::NAME, SetAllies);
+		a_vm->RegisterFunction("SetEnemies", Plugin::NAME, SetEnemies);
 
 		return true;
 	}

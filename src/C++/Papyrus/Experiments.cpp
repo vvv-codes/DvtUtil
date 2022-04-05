@@ -1,8 +1,8 @@
 #pragma once
 
-#include "PapyrusExperiments.h"
+#include "Experiments.h"
 
-namespace PapyrusExperiments
+namespace Papyrus::Experiments
 {
 	auto FindContainedFormsOfFormType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_container, std::uint32_t a_formType) -> std::vector<RE::TESForm*>
 	{
@@ -110,8 +110,8 @@ namespace PapyrusExperiments
 			return false;
 		}
 
-		a_vm->RegisterFunction("FindContainedFormsOfFormType", PROJECT_NAME, FindContainedFormsOfFormType);
-		a_vm->RegisterFunction("SetContainedFormDisplayNames", PROJECT_NAME, SetContainedFormDisplayNames);
+		a_vm->RegisterFunction("FindContainedFormsOfFormType", Plugin::NAME, FindContainedFormsOfFormType);
+		a_vm->RegisterFunction("SetContainedFormDisplayNames", Plugin::NAME, SetContainedFormDisplayNames);
 
 		return true;
 	}

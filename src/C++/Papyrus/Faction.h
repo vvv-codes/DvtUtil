@@ -2,7 +2,7 @@
 
 #pragma warning(disable : 4100)
 
-namespace PapyrusFaction
+namespace Papyrus::Faction
 {
 	using VM = RE::BSScript::IVirtualMachine;
 	using StackID = RE::VMStackID;

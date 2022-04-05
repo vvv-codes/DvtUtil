@@ -1,6 +1,57 @@
-# LibFire (CommonLibSSE Plugin)
+# DvtUtil (CommonLibSSE Plugin)
 
-Papyrus extensions by fireundubh
+DvtUtil is a native plugin that provides utility functions for Devourment Refactor,
+forked from [LibFire](https://github.com/fireundubh/LibFire). It's been restructured
+to be similar to Papyrus Extender's source code, and builds for AE via po3's CommonLibSSE fork.
+
+## Building DvtUtil
+
+You're going to want to have the following programs installed:
+
+* [CMake](https://cmake.org/)
+* [vcpkg](https://github.com/microsoft/vcpkg)
+* [Visual Studio Community 2022](https://visualstudio.microsoft.com/)
+
+I recommend getting a program like [scoop](https://scoop.sh/) to install CMake,
+as it lessens the burden of the next steps a little, and it's a very useful 
+utility to have as a developer.
+
+After installing these developer dependencies, you need to set up a few environment.
+First, add CMake to your `PATH` environment variable. You can skip this if you used scoop.
+If you don't know how to add or edit environment variables, follow this tutorial: https://www.java.com/en/download/help/path.html.
+You're also going to want to add the directory that you installed `vcpkg` to.
+By default this should be something like `C:\dev\vcpkg`. Then create a new
+environment variable named `VCPKG_ROOT` and set the value to the same directory
+we used in the previous step.
+
+You should be all set up to build now. `CMake` is the buildsystem DvtUtil
+uses. In a terminal, clone DvtUtil:
+
+```powershell
+# The `--recurse-submodules` flag is required to pull CommonLibSSE
+git clone --recurse-submodules "https://github.com/vvv-codes/DvtUtil.git"
+```
+
+Navigate to `DvtUtil` in the terminal with `cd DvtUtil`. Once there,
+we can use `cmake` to configure and build the project:
+
+```powershell
+# If you want to build for AE, use this command:
+cmake --preset vs2022-windows-vcpkg-ae
+# If you want to build for SE, use this command:
+cmake --preset vs2022-windows-vcpkg-se
+# Once that command finishes running, use this command to build:
+cmake --build build --config Release
+```
+
+That will build DvtUtil.dll. To install, copy the DLL to `Data\SKSE\Plugins\` in
+your Skyrim Special Edition folder, or create a mod in your Mod Organizer folder
+for it. You then need to compile the papyrus file separately. I recommend using
+a tool like [Papyrus Compiler App](https://www.nexusmods.com/skyrimspecialedition/mods/23852).
+
+If you're using a version of Devourment from before AE, you will need to modify
+Devourment's script files. Simply replace the word `LibFire` with `DvtUtil`
+and re-compile the Devourment scripts.
 
 ## Actor Functions
 

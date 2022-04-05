@@ -1,8 +1,8 @@
 #pragma once
 
-#include "PapyrusSpell.h"
+#include "Spell.h"
 
-namespace PapyrusSpell
+namespace Papyrus::Spell
 {
 	auto GetHighestMinSkillLevelForSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::SpellItem* a_spell) -> std::uint32_t
 	{
@@ -36,7 +36,7 @@ namespace PapyrusSpell
 			return false;
 		}
 
-		a_vm->RegisterFunction("GetHighestMinSkillLevelForSpell", PROJECT_NAME, GetHighestMinSkillLevelForSpell);
+		a_vm->RegisterFunction("GetHighestMinSkillLevelForSpell", Plugin::NAME, GetHighestMinSkillLevelForSpell);
 
 		return true;
 	}

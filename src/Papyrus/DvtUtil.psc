@@ -1,4 +1,4 @@
-ScriptName LibFire Hidden
+ScriptName DvtUtil Hidden
 
 { Actor }
 
@@ -87,13 +87,7 @@ Actor[] Function FindNearbySummons(ObjectReference akOrigin, Float afRadius) Glo
 ; Returns teammates in loaded cells within `afRadius` of player
 Actor[] Function FindNearbyTeammates(Float afRadius) Global Native
 
-; Returns the permanent value of `asActorValue` for `akActor`
-Float Function GetPermanentActorValue(ObjectReference akActor, String asActorValue) Global Native
-
 { Race }
-
-; Returns the skill boost value of `asActorValue` for `akRace`
-Int Function GetRaceSkillBonus(Race akRace, String asActorValue) Global Native
 
 ; Returns names of boosted actor values for `akRace`
 String[] Function GetRaceSkills(Race akRace) Global Native
